@@ -10,8 +10,8 @@ export class Grid {
     this.width = grid[0].length;
   }
 
-  static create(width: number, height: number, value=-1) {
-    const rows = Array.from({length: height}, () => Array(width).fill(value));
+  static create(width: number, height: number, value = -1) {
+    const rows = Array.from({ length: height }, () => Array(width).fill(value));
     return new Grid(rows);
   }
 
@@ -165,9 +165,16 @@ export class Grid {
     return count;
   }
 
-  partition(background = 0) {
-    const partitions: {x: number[], y: number[]}[] = [];
-    let visited = Array.from({ length: this.height }, () => Array(this.width).fill(false));
+  partition(background = 0, diagonal = false) {
+    const partitions: { x: number[], y: number[] }[] = [];
+    const visited = Array.from({ length: this.height }, () => Array(this.width).fill(false));
+
+    // Directions for vertical and horizontal moves (N, S, E, W)
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    if (diagonal) {
+      // Add diagonal moves (NW, NE, SW, SE)
+      directions.push([-1, -1], [-1, 1], [1, -1], [1, 1]);
+    }
 
     const dfs = (x: number, y: number, partitionId: number) => {
       // Stack for DFS
@@ -176,9 +183,6 @@ export class Grid {
 
       while (stack.length > 0) {
         let [cy, cx] = stack.pop()!;
-
-        // Directions for vertical and horizontal moves (N, S, E, W)
-        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
         // Explore the neighbors
         for (let [dx, dy] of directions) {
@@ -202,14 +206,14 @@ export class Grid {
       for (let j = 0; j < this.width; j++) {
         if (this.grid[i][j] !== background && !visited[i][j]) {
           // Found a new partition
-          partitions.push({x: [j], y: [i]});
+          partitions.push({ x: [j], y: [i] });
           dfs(j, i, partitionsId);
           partitionsId++;
         }
       }
     }
 
-    return partitions.map(({x, y}) => {
+    return partitions.map(({ x, y }) => {
       const minX = Math.min(...x);
       const maxX = Math.max(...x);
       const minY = Math.min(...y);
@@ -218,8 +222,46 @@ export class Grid {
       for (let i = 0; i < x.length; i++) {
         grid.grid[y[i] - minY][x[i] - minX] = this.grid[y[i]][x[i]];
       }
-      return {grid, x: minX, y: minY};
+      return { grid, x: minX, y: minY };
     });
+  }
+
+  floodFill(value: number, background = 0, diagonal = false) {
+    const grid = this.select(0, 0, this.width, this.height);
+    const visited = Array.from({ length: grid.height }, () => Array(grid.width).fill(false));
+
+    // Directions for vertical and horizontal moves (N, S, E, W)
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    if (diagonal) {
+      // Add diagonal moves (NW, NE, SW, SE)
+      directions.push([-1, -1], [-1, 1], [1, -1], [1, 1]);
+    }
+
+    const queue: [number, number][] = [];
+    // Add all border cells that are zeros
+    for (let i = 0; i < grid.height; i++) {
+      if (grid.grid[i][0] === background && !visited[i][0]) queue.push([i, 0]);
+      if (grid.grid[i][grid.width - 1] === background && !visited[i][grid.width - 1]) queue.push([i, grid.width - 1]);
+    }
+    for (let j = 0; j < grid.width; j++) {
+      if (grid.grid[0][j] === background && !visited[0][j]) queue.push([0, j]);
+      if (grid.grid[grid.height - 1][j] === background && !visited[grid.height - 1][j]) queue.push([grid.height - 1, j]);
+    }
+
+    while (queue.length > 0) {
+      const [cy, cx] = queue.shift()!;
+      visited[cy][cx] = true;
+      grid.grid[cy][cx] = value;
+      for (const [dx, dy] of directions) {
+        const nx = cx + dx;
+        const ny = cy + dy;
+        if (nx >= 0 && nx < grid.width && ny >= 0 && ny < grid.height && !visited[ny][nx] && grid.grid[ny][nx] === background) {
+          visited[ny][nx] = true;
+          queue.push([ny, nx]);
+        }
+      }
+    }
+    return grid;
   }
 
   equals(grid: Grid): boolean {

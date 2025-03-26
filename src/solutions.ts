@@ -16,5 +16,6 @@ export const solutions: Record<string, (grid: Grid) => Grid> = {
       grid = grid.insert(square, partition.x, partition.y);
     }
     return grid;    
-  }
+  },
+  "00d62c1b": grid => grid.floodFill(1, 0, false).replace(0, 4).replace(1, 0),
 }

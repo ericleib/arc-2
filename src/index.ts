@@ -27,11 +27,11 @@ for(const [name, fn] of Object.entries(solutions)) {
   }
 }
 
-const c = await loadCaseFile(trainingDataDir, `00dbd492.json`);
-for(const {grid, x, y} of c.test[0].input.partition()) {
-  console.log("partition ", x, y);
-  console.log(grid.toString(), '\n');
-}
+// const c = await loadCaseFile(trainingDataDir, `00dbd492.json`);
+// for(const {grid, x, y} of c.test[0].input.partition()) {
+//   console.log("partition ", x, y);
+//   console.log(grid.toString(), '\n');
+// }
 
 
 // const imagesDir = path.join(dataDir, 'images');
