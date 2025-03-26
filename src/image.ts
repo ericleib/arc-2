@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Canvas, createCanvas } from 'canvas';
-import type { Case } from './types';
+import type { Case } from './case';
 import { Grid } from './grid';
 
 const WIDTH_PNG = 512;

@@ -14,21 +14,21 @@ export class Grid {
     return this.grid[y][x];
   }
 
-  select(x: number, y: number, width=1, height=1, colors?: number[]): Grid {
+  select(x: number, y: number, width=1, height=1, values?: number[]): Grid {
     const rows: number[][] = [];
-    let colorSet = colors? new Set(colors) : undefined;
+    let valueSet = values? new Set(values) : undefined;
     for (let i = 0; i < height; i++) {
       const row: number[] = [];
       rows.push(row);
       for (let j = 0; j < width; j++) {
-        const color = this.grid[y + i][x + j];
-        row.push(colorSet? (colorSet.has(color)? color : -1) : color);
+        const value = this.grid[y + i][x + j];
+        row.push(valueSet? (valueSet.has(value)? value : -1) : value);
       }
     }
     return new Grid(rows);
   }
 
-  add(grid: Grid, x: number, y: number): Grid {
+  insert(grid: Grid, x: number, y: number): Grid {
     const rows: number[][] = [];
     for (let i = 0; i < this.height; i++) {
       const row: number[] = [];
@@ -133,6 +133,32 @@ export class Grid {
       }
       return new Grid(rows);
     }
+  }
+
+  replace(val: number, newVal: number): Grid {
+    const rows: number[][] = [];
+    for(const row of this.grid) {
+      const newRow: number[] = [];
+      rows.push(newRow);
+      for(const v of row) {
+        newRow.push(v === val? newVal : v);
+      }
+    }
+    return new Grid(rows);
+  }
+
+  equals(grid: Grid): boolean {
+    if(this.width !== grid.width || this.height !== grid.height) {
+      return false;
+    }
+    for (let i = 0; i < grid.height; i++) {
+      for (let j = 0; j < grid.width; j++) {
+        if(this.at(j, i) !== grid.at(j, i)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   toString(blanks = ' ') {

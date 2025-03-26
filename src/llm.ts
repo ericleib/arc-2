@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
 import path from 'path';
 import fs from 'fs/promises';
-import type { Case, Sample } from './types';
+import type { Case, Sample } from './case';
 import { asBuffer, createImage } from './image';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
