@@ -5,7 +5,7 @@ import type { Case, Grid } from './types';
 
 const WIDTH_PNG = 512;
 const HEIGHT_PNG = 512;
-const COLORS = ['black', 'red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'orange', 'pink', 'brown'];
+const COLORS = ['black', 'blue', 'red', 'green', 'yellow', 'grey', 'pink', 'orange', 'cyan', 'brown'];
 
 export async function createImages(file: string, dataDir: string, imagesDir: string) {
   const filePath = path.join(dataDir, file);
@@ -37,15 +37,15 @@ export async function asBuffer(canvas: Canvas) {
 export function createImage(grid: Grid) {
   const canvas = createCanvas(WIDTH_PNG, HEIGHT_PNG);
   const ctx = canvas.getContext('2d');
-  const width = grid.length;
-  const height = grid[0].length;
+  const height = grid.length;
+  const width = grid[0].length;
   const max = Math.max(width, height);
   const innerWidth = WIDTH_PNG / max;
   const innerHeight = HEIGHT_PNG / max;
   const textHeight = Math.min(20, innerHeight - 12);
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
-      ctx.fillStyle = COLORS[grid[i][j]];
+      ctx.fillStyle = COLORS[grid[j][i]];
       ctx.fillRect(i * innerWidth, j * innerHeight, innerWidth, innerHeight);
       ctx.strokeStyle = 'white';
       ctx.lineWidth = 2;
@@ -54,7 +54,7 @@ export function createImage(grid: Grid) {
       ctx.textBaseline = 'middle';
       ctx.fillStyle = 'white';
       ctx.font = `${textHeight}px Arial`;
-      ctx.fillText(grid[i][j].toString(), i * innerWidth + innerWidth / 2, j * innerHeight + innerHeight / 2);
+      ctx.fillText(grid[j][i].toString(), i * innerWidth + innerWidth / 2, j * innerHeight + innerHeight / 2);
     }
   }
   return canvas;
