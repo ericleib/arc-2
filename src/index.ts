@@ -56,3 +56,4 @@ console.log("\ninsert\n" + grid.insert(new Grid([[7,8],[9,-1]]), 1, 0).toString(
 console.log("\ninvert\n" + grid.invert().toString());
 console.log("\nequals\n" + grid.equals(grid.select(0, 0, 3, 4)));
 console.log("\nreplace\n" + grid.replace(0, -1).toString());
+console.log("\ncount\n" + grid.count([1, 2, 3]));

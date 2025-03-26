@@ -147,6 +147,19 @@ export class Grid {
     return new Grid(rows);
   }
 
+  count(values: number[]) {
+    const valueSet = new Set(values);
+    let count = 0;
+    for(const row of this.grid) {
+      for(const c of row) {
+        if(valueSet.has(c)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
   equals(grid: Grid): boolean {
     if(this.width !== grid.width || this.height !== grid.height) {
       return false;
