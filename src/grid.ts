@@ -18,6 +18,21 @@ export class Grid {
   at(x: number, y: number): number {
     return this.grid[y][x];
   }
+  
+  clear(fill = 0) {
+    return Grid.create(this.width, this.height, fill);
+  }
+
+  find(fn: (v: number, x?: number, y?: number) => any): {value: number, x: number, y: number} | undefined {
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        if (fn(this.grid[i][j], j, i)) {
+          return { value: this.grid[i][j], x: j, y: i };
+        }
+      }
+    }
+    return undefined;
+  }
 
   select(x: number, y: number, width = 1, height = 1, values?: number[]): Grid {
     const rows: number[][] = [];
@@ -140,13 +155,14 @@ export class Grid {
     }
   }
 
-  replace(val: number, newVal: number): Grid {
+  replace(fn: (val: number, x?: number, y?: number) => any, newVal: number): Grid {
     const rows: number[][] = [];
-    for (const row of this.grid) {
+    for (let i=0; i<this.height; i++) {
       const newRow: number[] = [];
       rows.push(newRow);
-      for (const v of row) {
-        newRow.push(v === val ? newVal : v);
+      for (let j=0; j<this.width; j++) {
+        const val = this.grid[i][j];
+        newRow.push(fn(val, j, i) ? newVal : val);
       }
     }
     return new Grid(rows);
