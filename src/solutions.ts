@@ -1,4 +1,4 @@
-import type { Grid } from "grid";
+import { Grid } from "grid";
 
 export const solutions: Record<string, (grid: Grid) => Grid> = {
   "00576224": grid => {
@@ -18,4 +18,24 @@ export const solutions: Record<string, (grid: Grid) => Grid> = {
     return grid;    
   },
   "00d62c1b": grid => grid.floodFill(1, 0, false).replace(0, 4).replace(1, 0),
+  "007bbfb7": grid => {
+    let subgrids: Grid[] = [];
+    for(let i=0; i<grid.height; i++) {
+      for(let j=0; j<grid.width; j++) {
+        const subgrid = grid.at(j, i) === 0? Grid.create(3, 3, 0) : grid;
+        subgrids[i] = subgrids[i]? subgrids[i].concat(subgrid, 'x') : subgrid;
+      }
+    }
+    return subgrids.reduce((acc, subgrid) => acc.concat(subgrid, 'y'));
+  },
+  "009d5c81": grid => {
+    const partitions = grid.partition(0, true);
+    const i = partitions.findIndex(p => p.grid.width === 3 && p.grid.height === 3);
+    const symbol = partitions[i].grid;
+    const fill = symbol.at(0, 0) === -1? 2 : symbol.at(1, 0) === -1? 3 : 7;
+    const main = partitions[i === 0? 1 : 0];
+    return grid
+      .replace(1, 0)
+      .insert(main.grid.replace(8, fill), main.x, main.y);
+  }
 }
