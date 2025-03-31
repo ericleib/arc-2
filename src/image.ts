@@ -22,7 +22,7 @@ export async function createImages(imagesDir: string, c: Case) {
   }
 }
 
-async function saveImage(canvas: Canvas, file: string) {
+export async function saveImage(canvas: Canvas, file: string) {
   await fs.writeFile(file, canvas.createPNGStream());
 }
 

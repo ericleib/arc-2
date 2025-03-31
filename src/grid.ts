@@ -34,15 +34,18 @@ export class Grid {
     return undefined;
   }
 
-  select(x: number, y: number, width = 1, height = 1, values?: number[]): Grid {
+  select(x: number, y: number, width = 1, height = 1): Grid {
     const rows: number[][] = [];
-    let valueSet = values ? new Set(values) : undefined;
     for (let i = 0; i < height; i++) {
       const row: number[] = [];
       rows.push(row);
       for (let j = 0; j < width; j++) {
-        const value = this.grid[y + i][x + j];
-        row.push(valueSet ? (valueSet.has(value) ? value : -1) : value);
+        if(y + i < 0 || y + i >= this.height || x + j < 0 || x + j >= this.width) {
+          row.push(-1);
+        }
+        else {
+          row.push(this.grid[y + i][x + j]);
+        }
       }
     }
     return new Grid(rows);
@@ -102,7 +105,7 @@ export class Grid {
     return new Grid(rows);
   }
 
-  invert(): Grid {
+  transpose(): Grid {
     const rows: number[][] = [];
     for (let i = 0; i < this.width; i++) {
       const row: number[] = [];
@@ -115,44 +118,38 @@ export class Grid {
   }
 
   concat(grid: Grid, axis: 'x' | 'y'): Grid {
+    const rows: number[][] = [];
     if (axis === 'x') {
-      if (this.height !== grid.height) {
-        throw new Error('Height mismatch');
-      }
-      const rows: number[][] = [];
-      for (let i = 0; i < this.height; i++) {
+      const height = Math.max(this.height, grid.height);
+      for (let i = 0; i < height; i++) {
         const row: number[] = [];
         rows.push(row);
         for (let j = 0; j < this.width + grid.width; j++) {
           if (j < this.width) {
-            row.push(this.grid[i][j]);
+            row.push(i < this.height? this.grid[i][j] : -1);
           }
           else {
-            row.push(grid.grid[i][j - this.width]);
+            row.push(i < grid.height? grid.grid[i][j - this.width] : -1);
           }
         }
       }
-      return new Grid(rows);
     }
     else {
-      if (this.width !== grid.width) {
-        throw new Error('Width mismatch');
-      }
-      const rows: number[][] = [];
+      const width = Math.max(this.width, grid.width);
       for (let i = 0; i < this.height + grid.height; i++) {
         const row: number[] = [];
         rows.push(row);
-        for (let j = 0; j < this.width; j++) {
+        for (let j = 0; j < width; j++) {
           if (i < this.height) {
-            row.push(this.grid[i][j]);
+            row.push(j < this.width? this.grid[i][j] : -1);
           }
           else {
-            row.push(grid.grid[i - this.height][j]);
+            row.push(j < grid.width? grid.grid[i - this.height][j] : -1);
           }
         }
       }
-      return new Grid(rows);
     }
+    return new Grid(rows);
   }
 
   replace(fn: (val: number, x?: number, y?: number) => any, newVal: number): Grid {
@@ -168,12 +165,11 @@ export class Grid {
     return new Grid(rows);
   }
 
-  count(values: number[]) {
-    const valueSet = new Set(values);
+  count(fn: (val: number, x?: number, y?: number) => any) {
     let count = 0;
-    for (const row of this.grid) {
-      for (const c of row) {
-        if (valueSet.has(c)) {
+    for (let i=0; i<this.height; i++) {
+      for (let j=0; j<this.width; j++) {
+        if (fn(this.grid[i][j], j, i)) {
           count++;
         }
       }
@@ -302,3 +298,28 @@ export class Grid {
   }
 
 }
+
+// const grid = new Grid([
+//   [0, 1, 2],
+//   [0, 0, 0],
+//   [3, 0, 5],
+//   [4, 0, 6],
+// ]);
+
+// console.log("\nbase\n" + grid.toString());
+// console.log("\nselect\n" + grid.select(1, 1, 2, 2).toString());
+// console.log("\nselect\n" + grid.select(0, 2, 3, 2).toString());
+// console.log("\nflip\n" + grid.flip('x').toString());
+// console.log("\nflip\n" + grid.flip('y').toString());
+// console.log("\nrotate\n" + grid.rotate('right').toString());
+// console.log("\nrotate\n" + grid.rotate('left').toString());
+// console.log("\ninsert\n" + grid.insert(new Grid([[7,8],[9,-1]]), 1, 1).toString());
+// console.log("\ninsert\n" + grid.insert(new Grid([[7,8],[9,-1]]), 0, 0).toString());
+// console.log("\ninsert\n" + grid.insert(new Grid([[7,8],[9,-1]]), 1, 0).toString());
+// console.log("\ntranspose\n" + grid.transpose().toString());
+// console.log("\nequals\n" + grid.equals(grid.select(0, 0, 3, 4)));
+// console.log("\nreplace\n" + grid.replace(v => v === 0, -1).toString());
+// console.log("\ncount\n" + grid.count(v => [1, 2, 3].includes(v)));
+// console.log("\ncreate\n" + Grid.create(2, 3, 4))
+// console.log("\nconcat\n" + grid.concat(Grid.create(2, 2, 5), 'x').toString());
+// console.log("\nconcat\n" + grid.concat(Grid.create(2, 2, 5), 'y').toString());
