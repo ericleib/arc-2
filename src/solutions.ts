@@ -1,3 +1,4 @@
+import { loadCaseFile } from "case";
 import { Grid } from "grid";
 
 export const solutions: Record<string, (grid: Grid) => Grid> = {
@@ -96,5 +97,17 @@ export const solutions: Record<string, (grid: Grid) => Grid> = {
       y += partition.grid.height-1;
     }
     return grid;
+  }
+}
+
+export async function testSolutions(dir: string) {  
+  for(const [name, fn] of Object.entries(solutions)) {
+    const c = await loadCaseFile(dir, `${name}.json`);
+    if(c.eval(fn)) {
+      console.log(`=> Case ${name} passed!\n`)
+    }
+    else {
+      console.error(`=> Case ${name} failed!\n`);
+    }
   }
 }
