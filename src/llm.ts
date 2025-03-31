@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
 import { join } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
-import type { Case, Sample } from './case';
+import type { Task, Sample } from './task';
 import { asBuffer, createImage, saveImage } from './image';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -49,9 +49,9 @@ const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
 
-export async function analyze(data: Case, runsDir: string) {
+export async function analyze(task: Task, runsDir: string) {
 
-  const runDir = join(runsDir, data.name, `${Date.now()}`);
+  const runDir = join(runsDir, task.name, `${Date.now()}`);
   await mkdir(runDir, {recursive: true});
 
   const messages = [
@@ -59,7 +59,7 @@ export async function analyze(data: Case, runsDir: string) {
       role: 'developer' as const,
       content: PROMPT
     },
-    ...await createMessages(data.train)
+    ...await createMessages(task.train)
   ];
 
   let res = await openai.chat.completions.create({
@@ -81,7 +81,7 @@ export async function analyze(data: Case, runsDir: string) {
       {
         type: 'image_url',
         image_url: {
-          url: getImageUrl(await asBuffer(createImage(data.test[0].input))),
+          url: getImageUrl(await asBuffer(createImage(task.test[0].input))),
           detail: 'low'
         }
       }
@@ -91,7 +91,7 @@ export async function analyze(data: Case, runsDir: string) {
   const context = {
     attempt: 0,
     messages,
-    case: data,
+    task,
     runDir,
     prompt_tokens,
     completion_tokens,
@@ -114,8 +114,8 @@ export async function analyze(data: Case, runsDir: string) {
   );
 
   return {
-    case: data.name,
-    solution: data.test[0].output.toString(),
+    task: task.name,
+    solution: task.test[0].output.toString(),
     analysis,
     predictions: context.predictions,
     tests: context.tests,
@@ -126,7 +126,7 @@ export async function analyze(data: Case, runsDir: string) {
 
 async function predict(
   context: {
-    case: Case,
+    task: Task,
     messages: OpenAI.ChatCompletionCreateParams['messages'],
     runDir: string,
     attempt: number,
@@ -151,7 +151,7 @@ async function predict(
   let prediction = extractCodeBlock(res.choices[0].message.content!);
   context.predictions.push(prediction);
   
-  let test = context.case.evalStr(prediction);
+  let test = context.task.evalStr(prediction);
   context.tests.push(test);
 
   const messages: OpenAI.ChatCompletionCreateParams['messages'] = [];

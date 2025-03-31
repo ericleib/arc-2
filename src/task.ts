@@ -35,7 +35,7 @@ export class Sample {
 
 };
 
-export class Case {
+export class Task {
   
   constructor(
     public name: string,
@@ -67,12 +67,12 @@ export class Case {
 
 };
 
-export async function loadCaseFile(dir: string, file: string): Promise<Case> {
+export async function loadTaskFile(dir: string, file: string): Promise<Task> {
   const path = join(dir, file);
   const name = file.split('.')[0];
   const str = await readFile(path, 'utf-8');
   const data = JSON.parse(str);
-  return new Case(
+  return new Task(
     name,
     data.train.map((sample: any, i: number) => new Sample(i, new Grid(sample.input), new Grid(sample.output))),
     data.test.map((sample: any, i: number) => new Sample(i, new Grid(sample.input), new Grid(sample.output)))

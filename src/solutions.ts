@@ -1,12 +1,10 @@
-import { loadCaseFile } from "case";
-import { Grid } from "grid";
+import { loadTaskFile } from "./task";
+import { Grid } from "./grid";
 
 export const solutions: Record<string, (grid: Grid) => Grid> = {
   "00576224": grid => {
     const row = grid.concat(grid, 'x').concat(grid, 'x');
-    const flipped = grid.flip('x');
-    const rowFliped = flipped.concat(flipped, 'x').concat(flipped, 'x');
-    return row.concat(rowFliped, 'y').concat(row, 'y');
+    return row.concat(row.flip('x'), 'y').concat(row, 'y');
   },
   "00dbd492": grid => {
     const partitions = grid.partition();
@@ -102,7 +100,7 @@ export const solutions: Record<string, (grid: Grid) => Grid> = {
 
 export async function testSolutions(dir: string) {  
   for(const [name, fn] of Object.entries(solutions)) {
-    const c = await loadCaseFile(dir, `${name}.json`);
+    const c = await loadTaskFile(dir, `${name}.json`);
     if(c.eval(fn)) {
       console.log(`=> Case ${name} passed!\n`)
     }

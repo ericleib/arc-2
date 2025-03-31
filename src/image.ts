@@ -1,21 +1,21 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Canvas, createCanvas } from 'canvas';
-import type { Case } from './case';
+import type { Task } from './task';
 import { Grid } from './grid';
 
 const WIDTH_PNG = 512;
 const HEIGHT_PNG = 512;
 const COLORS = ['black', 'blue', 'red', 'green', 'yellow', 'grey', 'pink', 'orange', 'cyan', 'brown'];
 
-export async function createImages(imagesDir: string, c: Case) {
+export async function createImages(imagesDir: string, task: Task) {
 
-  const imageDir = path.join(imagesDir, c.name);
+  const imageDir = path.join(imagesDir, task.name);
   await fs.mkdir(imageDir, { recursive: true }).catch();
   
   for (const type of ['train', 'test'] as const) {
-    for (let s = 0; s < c[type].length; s++) {
-      const sample = c[type][s];
+    for (let s = 0; s < task[type].length; s++) {
+      const sample = task[type][s];
       await saveImage(createImage(sample.input), path.join(imageDir, `${type}-${s}-input.png`));
       await saveImage(createImage(sample.output), path.join(imageDir, `${type}-${s}-output.png`));
     }
